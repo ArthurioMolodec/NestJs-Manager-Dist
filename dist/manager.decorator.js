@@ -12,6 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Managed = exports.MANAGED_KEY = void 0;
 const common_1 = require("@nestjs/common");
 exports.MANAGED_KEY = 'managed';
+function numEnum(enumObj) {
+    return Object.entries(enumObj).filter(([k]) => isNaN(Number(k)));
+}
+function notNumEnum(enumObj) {
+    return Object.entries(enumObj).filter(([k]) => !isNaN(Number(k)));
+}
 function reverseEnum(enumObj) {
     return Object.entries(enumObj).reduce((acc, [key, value]) => {
         acc[value] = key;
@@ -36,10 +42,11 @@ const Managed = (config, name) => {
             if (column.type === 'enum' && column.raw_args?.[0] && typeof column.raw_args[0] === 'object') {
                 const enumopts = column.raw_args[0];
                 column.attributes ??= {};
-                column.attributes.enumValToLabel = reverseEnum(enumopts);
+                const enumFilteredEntr = notNumEnum(enumopts);
+                column.attributes.enumValToLabel = Object.fromEntries(enumFilteredEntr);
                 if (column.filters === true) {
                     column.filters = {
-                        options: Object.keys(enumopts).map((key) => ({
+                        options: enumFilteredEntr.map(([key]) => ({
                             key,
                             label: enumopts[key],
                         }))
