@@ -12,7 +12,42 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Managed = exports.MANAGED_KEY = void 0;
 const common_1 = require("@nestjs/common");
 exports.MANAGED_KEY = 'managed';
+function reverseEnum(enumObj) {
+    return Object.entries(enumObj).reduce((acc, [key, value]) => {
+        acc[value] = key;
+        return acc;
+    }, {});
+}
+function iterateOverNodes(grid, fn) {
+    fn(grid);
+    if (grid.nodes) {
+        for (const node of grid.nodes) {
+            iterateOverNodes(node, fn);
+        }
+    }
+}
 const Managed = (config, name) => {
+    iterateOverNodes(config.grid, (grid) => {
+        if (grid.type !== 'table') {
+            return;
+        }
+        const tableGrid = grid;
+        for (const column of tableGrid.attributes.columns) {
+            if (column.type === 'enum' && column.raw_args?.[0] && typeof column.raw_args[0] === 'object') {
+                const enumopts = column.raw_args[0];
+                column.attributes ??= {};
+                column.attributes.enumValToLabel = reverseEnum(enumopts);
+                if (column.filters === true) {
+                    column.filters = {
+                        options: Object.keys(enumopts).map((key) => ({
+                            key,
+                            label: enumopts[key],
+                        }))
+                    };
+                }
+            }
+        }
+    });
     return (target) => {
         let ManagedController = class ManagedController extends target {
             async config() {

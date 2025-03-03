@@ -16,7 +16,8 @@ function ColumnsFromModel(modelName, fields) {
     return fields.filter(field => field in scheme).map((filed) => ({
         header: snakeToHuman(filed),
         path: filed,
-        type: scheme[filed][1] ?? 'plain'
+        type: scheme[filed][1] ?? 'plain',
+        raw_args: scheme[filed].slice(2) ?? []
     }));
 }
 exports.ColumnsFromModel = ColumnsFromModel;
