@@ -13,12 +13,17 @@ function ColumnsFromModel(modelName, fields) {
     if (!scheme) {
         throw new Error("Model " + modelName + " is not found");
     }
-    return fields.filter(field => field in scheme).map((filed) => ({
-        header: snakeToHuman(filed),
-        path: filed,
-        type: scheme[filed][1] ?? 'plain',
-        raw_args: scheme[filed].slice(2) ?? []
-    }));
+    return fields.filter(field => typeof field === 'string' && field in scheme || field[0] in scheme).map((field) => {
+        const filedName = (typeof field === 'string') ? field : field[0];
+        const fieldParams = (typeof field === 'string') ? {} : field[1];
+        return {
+            header: snakeToHuman(filedName),
+            path: filedName,
+            type: scheme[filedName][1] ?? 'plain',
+            raw_args: scheme[filedName].slice(2) ?? [],
+            ...fieldParams,
+        };
+    });
 }
 exports.ColumnsFromModel = ColumnsFromModel;
 //# sourceMappingURL=types-utils.js.map

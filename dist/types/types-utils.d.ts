@@ -1,7 +1,10 @@
+import { BaseColumn } from "src";
 export declare function snakeToHuman(str: string): string;
-export declare function ColumnsFromModel(modelName: string, fields: string[]): {
+export declare function ColumnsFromModel(modelName: string, fields: (string | [string, Partial<BaseColumn>])[]): {
     header: string;
-    path: string;
+    filters?: any;
     type: import("./types.decorator").Modifier | "enum";
-    raw_args: ("string" | "number" | "boolean" | "date" | "datetime" | "plain" | "text" | "null" | "string | null" | "number | null" | "boolean | null")[] | ("enum" | import("./types.decorator").AnyType | "string | null" | "number | null" | "boolean | null" | Record<string, string | number>)[];
+    raw_args: any[];
+    attributes?: any;
+    path: string;
 }[];
